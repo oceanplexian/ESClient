@@ -72,4 +72,4 @@ for doc in f:
                 bulk_counter = 0
 
 f.close()
-print "Indexing of %d documents completed" % (counter)
+print "\nIndexing of %d documents completed" % (counter)
