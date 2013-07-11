@@ -35,6 +35,8 @@ else:
     f = sys.stdin
 
 counter = 0
+bulk_counter = 0
+
 for doc in f:
     doc = json.loads(doc)
     
@@ -57,11 +59,17 @@ for doc in f:
     except KeyError:
         routing = None
 
-    if not es.index(index, doctype, doc["_source"], docid=doc["_id"], parent=parent, routing=routing):
-        sys.stderr.write("Error occured while indexing documents, stopping!\n");
-        sys.exit(1)
-    else:
-        counter += 1
+    es.bulk_index(index, doctype, doc["_source"], docid=doc["_id"])
+    bulk_counter += 1
+    counter += 1
+
+    if bulk_counter == 1000:
+        if not es.bulk_push():
+                sys.stderr.write("Error pushing bulk\n");
+                sys.exit(1)
+        else:
+                sys.stderr.write(".");
+                bulk_counter = 0
 
 f.close()
 print "Indexing of %d documents completed" % (counter)
